@@ -7,7 +7,7 @@ output_dir = "1_filtered_output"
 os.makedirs(output_dir, exist_ok=True)
 
 target_years = ['2015', '2016', '2017', '2018', '2019']
-columns_to_keep = ["日期", "地區", "NO", "NO2", "NOx", "O3", "PM10", "PM2.5", "SO2"]
+columns_to_keep = ["日期", "地區", "AMB_TEMP","NO", "NO2", "NOx", "O3", "PM10", "PM2.5", "RH","SO2"]
 
 for dirpath, dirnames, filenames in os.walk(root_dir):
     for filename in filenames:

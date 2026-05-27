@@ -7,7 +7,7 @@ output_dir = "3_interpolated_output"
 os.makedirs(output_dir, exist_ok=True)
 
 # 需要補值的欄位（不含日期、地區）
-value_columns = ["NO", "NO2", "NOx", "O3", "PM10", "PM2.5", "SO2"]
+value_columns = ["AMB_TEMP", "NO", "NO2", "NOx", "O3", "PM10", "PM2.5", "RH", "SO2"]
 skip_threshold = 27  # 超過 27 週缺值不補
 
 # 補值處理函數
@@ -24,6 +24,9 @@ def interpolate_file(file_path, output_path):
         for col in value_columns:
             if col not in df_interp.columns:
                 continue
+
+            # 確保欄位為數值型別（將無法轉換的字串轉為 NaN）
+            df_interp[col] = pd.to_numeric(df_interp[col], errors='coerce')
 
             # 找出連續缺值區間長度
             null_series = df_interp[col].isna().astype(int)

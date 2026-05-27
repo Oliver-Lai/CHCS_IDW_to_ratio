@@ -17,7 +17,7 @@ def process_interpolated_files_stationwise():
     areas = ['中部', '北部', '竹苗', '宜蘭', '花東', '高屏', '雲嘉南']
 
     # 多個測項
-    target_factors = ["NO", "NO2", "NOx", "O3", "PM10", "PM2.5", "SO2"]
+    target_factors = ["AMB_TEMP", "NO", "NO2", "NOx", "O3", "PM10", "PM2.5", "RH", "SO2"]
     factor_filename_map = {f: f.replace('.', '') for f in target_factors}  # 處理 PM2.5 -> PM25 檔名用
 
     for factor in target_factors:
