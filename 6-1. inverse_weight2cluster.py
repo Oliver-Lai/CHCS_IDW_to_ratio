@@ -5,7 +5,7 @@ from shapely.geometry import Point
 import os
 
 # 測項清單
-factors = ["NO", "NO2", "NOx", "O3", "PM10", "PM2.5", "SO2"]
+factors = ["AMB_TEMP","NO", "NO2", "NOx", "O3", "PM10", "PM2.5", "RH","SO2"]
 
 # 定義縣市對應區域
 region_map = {
@@ -33,22 +33,26 @@ jInterval = (25.5 - 21.8) / 120
 grid_points = [Point(119 + i * iInterval, 25.5 - j * jInterval) for j in range(120) for i in range(120)]
 grid_gdf = gpd.GeoDataFrame(geometry=grid_points, crs="EPSG:4326")
 
-# 儲存結果
-results = []
-
 output_folder = "6_exposure_by_region"
 os.makedirs(output_folder, exist_ok=True)
 
+# 準備用來合併所有測項的 DataFrame
+combined_results = None
+
 # 處理每個測項
 for factor in factors:
-    input_folder = f"./5_grid_output/{factor.replace('.', '')}"
+    factor_clean = factor.replace('.', '')
+    # 儲存每個測項的結果
+    results = []
+    
+    input_folder = f"./5_grid_output/{factor_clean}"
     if not os.path.exists(input_folder):
         print(f"❌ 資料夾不存在: {input_folder}")
         continue
 
     for year in range(2016, 2020):
         for week in range(1, 53):  # 最多 53 週
-            grid_path = os.path.join(input_folder, f"{factor}_{year}_week_{week}.csv")
+            grid_path = os.path.join(input_folder, f"{factor_clean}_{year}_week_{week}.csv")
             if not os.path.exists(grid_path):
                 continue
 
@@ -74,12 +78,17 @@ for factor in factors:
             grouped = joined.groupby('region')
 
             for region, group in grouped:
-                avg_val = group["value"].mean() * 7  # 週暴露量 = 每日平均 * 7
+                # 溫度與濕度等不應以累加計算，只需取平均
+                if factor in ["AMB_TEMP", "RH"]:
+                    avg_val = group["value"].mean()
+                else:
+                    avg_val = group["value"].mean() * 7  # 污染物的週暴露量 = 每日平均 * 7
+                    
                 results.append({
                     "region": region,
                     "year": year,
                     "week": week,
-                    "value": round(avg_val, 2)
+                    factor_clean: round(avg_val, 2)
                 })
 
             print(f"✅ 完成：{factor} {year} week {week}")
@@ -87,7 +96,21 @@ for factor in factors:
     # 輸出結果
     if results:
         result_df = pd.DataFrame(results)
-        result_df.to_csv(f"./{output_folder}/{factor}_weekly_exposure_by_region.csv", index=False, encoding="utf-8-sig")
+        
+        # 為了保持原本單獨檔案格式，將欄位改回 'value' 再輸出
+        single_df = result_df.rename(columns={factor_clean: "value"})
+        single_df.to_csv(f"./{output_folder}/{factor}_weekly_exposure_by_region.csv", index=False, encoding="utf-8-sig")
         print(f"✅ 輸出完成：{factor}_weekly_exposure_by_region.csv")
+        
+        # 合併至總表
+        if combined_results is None:
+            combined_results = result_df
+        else:
+            combined_results = pd.merge(combined_results, result_df, on=["region", "year", "week"], how="outer")
     else:
-        print("⚠️ 無任何有效結果輸出")
+        print(f"⚠️ {factor} 無任何有效結果輸出")
+
+# 輸出合併後的檔案
+if combined_results is not None:
+    combined_results.to_csv(f"./{output_folder}/factors_weekly_exposure.csv", index=False, encoding="utf-8-sig")
+    print(f"✅ 合併檔案輸出完成：factors_weekly_exposure.csv")
