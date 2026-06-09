@@ -53,6 +53,10 @@ df['month'] = df['month'].fillna(fallback_month).astype(int)
 # 2. 要畫圖的測項 (扣掉非數值與時間特徵)
 factors = [col for col in df.columns if col not in ['region', 'year', 'week', 'date', 'month']]
 
+# AMB_TEMP 和 RH 是週平均值，其餘是週累積暴露量，除以 7 換算為每日平均
+daily_avg_factors = [f for f in factors if f not in ['AMB_TEMP', 'RH']]
+df[daily_avg_factors] = df[daily_avg_factors] / 7
+
 # 3. 準備輸出資料夾
 output_folder = "6_exposure_by_region/plots"
 os.makedirs(output_folder, exist_ok=True)
@@ -90,8 +94,12 @@ for factor in factors:
     # 設定 x, y 軸
     plt.xticks(range(1, 13), month_names)
     plt.xlabel('Month')
-    plt.ylabel(f'Mean {factor}')
-    plt.title(f'Seasonal variation of weekly {factor}', pad=20, fontweight='bold')
+    if factor in ['AMB_TEMP', 'RH']:
+        plt.ylabel(f'Mean {factor}')
+        plt.title(f'Seasonal variation of weekly {factor}', pad=20, fontweight='bold')
+    else:
+        plt.ylabel(f'Mean daily {factor}')
+        plt.title(f'Seasonal variation of daily {factor}', pad=20, fontweight='bold')
     
     # 加入 Y 軸的淺色虛線網格線 (模擬附圖)
     plt.grid(axis='y', linestyle='--', alpha=0.4)

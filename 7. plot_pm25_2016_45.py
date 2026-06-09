@@ -3,10 +3,32 @@ import pandas as pd
 import geopandas as gpd
 import matplotlib.pyplot as plt
 from shapely.geometry import box
+import matplotlib.font_manager as fm
+import os
 
-# 設定中文字體
-plt.rcParams['font.sans-serif'] = ['Microsoft JhengHei', 'SimHei', 'Microsoft YaHei', 'STHeiti']
-plt.rcParams['axes.unicode_minus'] = False
+import urllib
+import urllib.request
+# ==========================================
+# 終極解法：直接下載並載入開源中文字體檔 (更新有效網址)
+# ==========================================
+font_path = "NotoSansCJKtc-Regular.otf"
+
+# 如果資料夾內沒有字體檔，就自動從 GitHub 下載
+if not os.path.exists(font_path):
+    print("⬇️ 正在下載中文字體 (Noto Sans CJK TC)...")
+    # 使用目前官方最新的有效下載連結
+    url = "https://raw.githubusercontent.com/notofonts/noto-cjk/main/Sans/OTF/TraditionalChinese/NotoSansCJKtc-Regular.otf"
+    urllib.request.urlretrieve(url, font_path)
+    print("✅ 字體下載完成！")
+
+# 強制將該字體加入 Matplotlib 的字體庫中
+fm.fontManager.addfont(font_path)
+
+# 取得該字體在 Matplotlib 系統中的正確名稱，並設為預設
+font_prop = fm.FontProperties(fname=font_path)
+plt.rcParams['font.sans-serif'] = [font_prop.get_name()]
+plt.rcParams['axes.unicode_minus'] = False # 解決負號無法正常顯示的問題
+# ==========================================
 
 # === 1️⃣ 讀取資料 ===
 csv_path = "./6_exposure_by_town/PM25_weekly_exposure_with_ID.csv"
