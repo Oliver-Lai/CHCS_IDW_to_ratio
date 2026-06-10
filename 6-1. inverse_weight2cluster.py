@@ -33,7 +33,7 @@ jInterval = (25.5 - 21.8) / 120
 grid_points = [Point(119 + i * iInterval, 25.5 - j * jInterval) for j in range(120) for i in range(120)]
 grid_gdf = gpd.GeoDataFrame(geometry=grid_points, crs="EPSG:4326")
 
-output_folder = "6_exposure_by_region"
+output_folder = "6_exposure_by_region_mean"
 os.makedirs(output_folder, exist_ok=True)
 
 # 準備用來合併所有測項的 DataFrame
@@ -82,7 +82,7 @@ for factor in factors:
                 if factor in ["AMB_TEMP", "RH"]:
                     avg_val = group["value"].mean()
                 else:
-                    avg_val = group["value"].mean() * 7  # 污染物的週暴露量 = 每日平均 * 7
+                    avg_val = group["value"].mean()
                     
                 results.append({
                     "region": region,

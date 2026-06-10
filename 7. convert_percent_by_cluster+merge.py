@@ -19,8 +19,8 @@ for region, prefixes in region_groups.items():
 
 # 路徑設定
 input_folder = "周就醫轉比例"
-exposure_path = "./6_exposure_by_region/factors_weekly_exposure.csv"
-output_folder = "7_疾病暴露資料"
+exposure_path = "./6_exposure_by_region_mean/factors_weekly_exposure.csv"
+output_folder = "7_疾病暴露資料_mean"
 os.makedirs(output_folder, exist_ok=True)
 
 # 讀取空氣因子暴露資料
