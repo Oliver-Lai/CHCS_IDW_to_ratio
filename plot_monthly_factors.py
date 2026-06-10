@@ -98,8 +98,8 @@ for factor in factors:
         plt.ylabel(f'Mean {factor}')
         plt.title(f'Seasonal variation of weekly {factor}', pad=20, fontweight='bold')
     else:
-        plt.ylabel(f'Mean daily {factor}')
-        plt.title(f'Seasonal variation of daily {factor}', pad=20, fontweight='bold')
+        plt.ylabel(f'Mean weekly {factor}')
+        plt.title(f'Seasonal variation of weekly {factor}', pad=20, fontweight='bold')
     
     # 加入 Y 軸的淺色虛線網格線 (模擬附圖)
     plt.grid(axis='y', linestyle='--', alpha=0.4)
